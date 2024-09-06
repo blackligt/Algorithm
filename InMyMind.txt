@@ -1,0 +1,2 @@
+THe first day to make this repo 24.09.06
+Gonna make three folders and each of them, are Python, C++, Java
