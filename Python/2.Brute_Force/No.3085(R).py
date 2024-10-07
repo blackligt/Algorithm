@@ -14,70 +14,67 @@ n*n 의 격자가 주어지고 서로 다른 사탕이 랜덤하게 격자 안�
 한 쌍을 변경한 후 연속되는 최대 갯수를 체크하는데 이 경우 전체 격자에서 확인할 필요가 없었다.
 다른 곳에서의 변화는 없기에 변화가 생긴 행과 열에 대해서만 확인을 진행하면 된다.
 그런데 이 경우 다른 곳에서 이미 최대가 있다면? --> 그렇다면 먼저 기존 것을 가지고 카운트를 한 다음에 변경을 진행하자
-'''
-
-import sys
-import copy
-
-n = int(sys.stdin.readline())
-arr = []*n
-
-'''
-input = sys.stdin.read
-data = input().splitlines()
-
-for l in data:
-    l_list = list(l)
-    arr.append(l_list)
 
 '''
 
-for i in range(n):
-    line = input()
-    line_list = list(line)
-    arr.append(line_list)
+'''
+def check(board, n):
+    max_count = 1  # 연속된 사탕의 최대 개수
 
-#print(arr)
-check = [(0,1),(0,-1),(-1,0),(1,0)] #우측, 좌측, 위, 아래
-ans = 0
+    # 각 행에 대해 연속된 사탕 개수 계산
+    for i in range(n):
+        count = 1
+        for j in range(1, n):
+            if board[i][j] == board[i][j-1]:
+                count += 1
+            else:
+                count = 1
+            max_count = max(max_count, count)
 
-# 위치를 바꾼 다음, 비교하는 것을 하나의 과정으로 반복하기, 그렇다면 각 칸에 대해서 4번의 자리 이동과 그 때의 격자를 다시 전부 검사해야하나
-for i in range(n*n): 
-    x, y = i//n, i%n #현재 확인하고자하는 위치
-    #print("x and y : ",x, y)
-    near = list([x - pos[0], y - pos[1]] for pos in check) #주변 격자들의 위치 튜플 리스트
-    #print("near x and near y",near)
-    for near_x, near_y in near: #상하좌우로 위치 변경
-        if near_x >= 0 and near_x < n and near_y >= 0 and near_y < n: #격자 안에 있다면
-            #print(near_x, near_y)
-            new_arr = copy.deepcopy(arr) #새로운 격자 생성
-            temp = new_arr[x][y]
-            new_arr[x][y] = new_arr[near_x][near_y]
-            new_arr[near_x][near_y] = temp
-            #print(new_arr)
-            for j in range(n*n):
-                hor_len = 1
-                hie_len = 1
-                row, col = j//n ,j%n
-                check_c = new_arr[row][col] #비교하고자하는 문자
-                while(row < n-1):
-                    row += 1
-                    if new_arr[row][col] == check_c: #아래쪽 변수가 같다면
-                        hor_len += 1 #숫자 한 개 증가
-                    else:
-                        break
-                if hor_len > ans:
-                    #print("new : !!!!",hor_len)
-                    ans = hor_len
-                row, col = j//n, j%n #위치 리셋
-                while(col < n-1):
-                    col += 1
-                    if new_arr[row][col] == check_c: #옆쪽 변수가 같다면
-                        hie_len += 1 #숫자 한 개 증가
-                    else:
-                        break
-                if hie_len > ans:
-                    #print("new : !!!",hie_len)
-                    ans = hie_len
+    # 각 열에 대해 연속된 사탕 개수 계산
+    for j in range(n):
+        count = 1
+        for i in range(1, n):
+            if board[i][j] == board[i-1][j]:
+                count += 1
+            else:
+                count = 1
+            max_count = max(max_count, count)
 
-print(ans)
+    return max_count
+
+def solution():
+    n = int(input())  # 보드 크기
+    board = [list(input()) for _ in range(n)]  # 사탕 배열
+
+    result = 0
+
+    # 인접한 칸끼리 교환
+    for i in range(n):
+        for j in range(n):
+            # 오른쪽 사탕과 교환
+            if j + 1 < n:
+                board[i][j], board[i][j+1] = board[i][j+1], board[i][j]  # 교환
+                result = max(result, check(board, n))  # 교환 후 최대 개수 계산
+                board[i][j], board[i][j+1] = board[i][j+1], board[i][j]  # 원상복구
+
+            # 아래쪽 사탕과 교환
+            if i + 1 < n:
+                board[i][j], board[i+1][j] = board[i+1][j], board[i][j]  # 교환
+                result = max(result, check(board, n))  # 교환 후 최대 개수 계산
+                board[i][j], board[i+1][j] = board[i+1][j], board[i][j]  # 원상복구
+
+    print(result)
+
+# 메인 함수 호출
+solution()
+'''
+
+'''
+도저히 모르겠음. 힌트를 받아야 할 것 같다.
+방법은 교환한 후 최대 갯수를 계산, 그 뒤 다시 원상복귀 시키면 된다.
+오른쪽으로만 교환하고 아래로만 교환하는 방식은 맞았음
+해설에서는 전체 배열에 대해서 전부 연속을 확인했지만, 오르쪽 교환시 행 1개, 열 2개 아래로 교환시 행 2개 열 1개를 확인하는 식으로
+하면 더 빠를 수 있을 듯 하다.
+너무 어렵게 생각했다. 또한 코드를 정갈하게 작성하는 방법을 배워야 할 듯 하다.
+'''
